@@ -26,3 +26,31 @@ You will need:
         /usr/lib/python2.7/dist-packages/ctypeslib/codegen/cparser.py
 
 See https://bugs.launchpad.net/ubuntu/+source/python-ctypeslib/+bug/1657234
+
+Also note that the same ctypeslib emits symbols in unstable orders, and items
+in __all__ in stable but random order. The following patch creates a more
+reasonable output:
+
+    --- ctypeslib/codegen/codegenerator.py.orig
+    +++ ctypeslib/codegen/codegenerator.py
+    @@ -757,6 +757,10 @@
+                 self.generate(item)
+
+         def cmpitems(a, b):
+    +        NT = (typedesc.Variable, typedesc.EnumValue)
+    +        if isinstance(a, NT) and isinstance(b, NT):
+    +            return cmp(a.name, b.name)
+    +
+        a = getattr(a, "location", None)
+        b = getattr(b, "location", None)
+        if a is None: return -1
+    @@ -787,7 +791,8 @@
+             self.output.write("\n\n")
+             self.output.write(self.stream.getvalue())
+
+    -        text = "__all__ = [%s]" % ", ".join([repr(str(n)) for n in self.names])
+    +        text = "__all__ = [%s]" % ", ".join(
+    +            sorted([repr(str(n)) for n in self.names], key=str.lower))
+
+             wrapper = textwrap.TextWrapper(break_long_words=False,
+                                            subsequent_indent="           ")
