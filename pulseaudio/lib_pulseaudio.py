@@ -3,6 +3,7 @@ from ctypes import *
 STRING = c_char_p
 _libraries = {}
 _libraries['libpulse.so.0'] = CDLL('libpulse.so.0')
+_libraries['libpulse-simple.so.0'] = CDLL('libpulse-simple.so.0')
 
 
 PA_API_VERSION = 12 # Variable c_int '12'
@@ -1457,6 +1458,31 @@ pa_context_play_sample.argtypes = [POINTER(pa_context), STRING, STRING, pa_volum
 pa_context_play_sample_with_proplist = _libraries['libpulse.so.0'].pa_context_play_sample_with_proplist
 pa_context_play_sample_with_proplist.restype = POINTER(pa_operation)
 pa_context_play_sample_with_proplist.argtypes = [POINTER(pa_context), STRING, STRING, pa_volume_t, POINTER(pa_proplist), pa_context_play_sample_cb_t, c_void_p]
+class pa_simple(Structure):
+    pass
+pa_simple._fields_ = [
+]
+pa_simple_new = _libraries['libpulse-simple.so.0'].pa_simple_new
+pa_simple_new.restype = POINTER(pa_simple)
+pa_simple_new.argtypes = [STRING, STRING, pa_stream_direction_t, STRING, STRING, POINTER(pa_sample_spec), POINTER(pa_channel_map), POINTER(pa_buffer_attr), POINTER(c_int)]
+pa_simple_free = _libraries['libpulse-simple.so.0'].pa_simple_free
+pa_simple_free.restype = None
+pa_simple_free.argtypes = [POINTER(pa_simple)]
+pa_simple_write = _libraries['libpulse-simple.so.0'].pa_simple_write
+pa_simple_write.restype = c_int
+pa_simple_write.argtypes = [POINTER(pa_simple), c_void_p, size_t, POINTER(c_int)]
+pa_simple_drain = _libraries['libpulse-simple.so.0'].pa_simple_drain
+pa_simple_drain.restype = c_int
+pa_simple_drain.argtypes = [POINTER(pa_simple), POINTER(c_int)]
+pa_simple_read = _libraries['libpulse-simple.so.0'].pa_simple_read
+pa_simple_read.restype = c_int
+pa_simple_read.argtypes = [POINTER(pa_simple), c_void_p, size_t, POINTER(c_int)]
+pa_simple_get_latency = _libraries['libpulse-simple.so.0'].pa_simple_get_latency
+pa_simple_get_latency.restype = pa_usec_t
+pa_simple_get_latency.argtypes = [POINTER(pa_simple), POINTER(c_int)]
+pa_simple_flush = _libraries['libpulse-simple.so.0'].pa_simple_flush
+pa_simple_flush.restype = c_int
+pa_simple_flush.argtypes = [POINTER(pa_simple), POINTER(c_int)]
 pa_stream._fields_ = [
 ]
 pa_stream_success_cb_t = CFUNCTYPE(None, POINTER(pa_stream), c_int, c_void_p)
@@ -2224,9 +2250,12 @@ __all__ = ['__suseconds_t', '__time_t', 'int64_t', 'PA_API_VERSION',
            'pa_server_info_cb_t', 'pa_signal_cb_t',
            'pa_signal_destroy_cb_t', 'pa_signal_done',
            'pa_signal_event', 'pa_signal_free', 'pa_signal_init',
-           'pa_signal_new', 'pa_signal_set_destroy',
-           'PA_SINK_DECIBEL_VOLUME', 'PA_SINK_DYNAMIC_LATENCY',
-           'pa_sink_flags', 'pa_sink_flags_t', 'PA_SINK_FLAT_VOLUME',
+           'pa_signal_new', 'pa_signal_set_destroy', 'pa_simple',
+           'pa_simple_drain', 'pa_simple_flush', 'pa_simple_free',
+           'pa_simple_get_latency', 'pa_simple_new', 'pa_simple_read',
+           'pa_simple_write', 'PA_SINK_DECIBEL_VOLUME',
+           'PA_SINK_DYNAMIC_LATENCY', 'pa_sink_flags',
+           'pa_sink_flags_t', 'PA_SINK_FLAT_VOLUME',
            'PA_SINK_HARDWARE', 'PA_SINK_HW_MUTE_CTRL',
            'PA_SINK_HW_VOLUME_CTRL', 'PA_SINK_IDLE', 'pa_sink_info',
            'pa_sink_info_cb_t', 'PA_SINK_INIT', 'pa_sink_input_info',
